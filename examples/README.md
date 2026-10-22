@@ -2,13 +2,13 @@
 
 The `ballerinax/ebay.recommendation` connector provides practical examples illustrating usage in various scenarios.
 
-[//]: # (TODO: Add examples)
-1. 
-2. 
+1. [Promoted listing picks](./promoted_listing_picks/promoted_listing_picks.md) - Review selected listings and report those recommended for a Promoted Listings campaign.
+2. [Ad rate benchmark](./ad_rate_benchmark/ad_rate_benchmark.md) - Page through all active listings and compute the average trending ad rate.
 
 ## Prerequisites
 
-[//]: # (TODO: Add prerequisites)
+- An eBay developer keyset and a refresh token with the `https://api.ebay.com/oauth/api_scope/sell.inventory` scope.
+- A `Config.toml` in the example directory with the credentials and values described in the example's guide.
 
 ## Running an example
 
