@@ -1,6 +1,6 @@
 # Ad rate benchmark
 
-This example pages through all of a seller's active listings and computes the average trending ad rate across the listings that have a recommended bid percentage.
+This example pages through the seller's active listings that eBay recommends for promotion and computes their average `TRENDING` ad rate. With an empty request body, eBay considers all active listings but returns only those whose `promoteWithAd` is `RECOMMENDED`. `pageSize` must be between 1 and 500.
 
 ## Prerequisites
 

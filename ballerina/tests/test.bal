@@ -22,17 +22,31 @@ final boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "true";
 final string serviceUrl = isLiveServer ? "https://api.ebay.com/sell/recommendation/v1" : "http://localhost:9090";
 final string token = isLiveServer ? os:getEnv("EBAY_ACCESS_TOKEN") : "test_token";
 final string marketplaceId = isLiveServer ? os:getEnv("EBAY_MARKETPLACE_ID") : "EBAY_US";
+// Live runs read comma-separated IDs of the authenticated seller's active listings from EBAY_LISTING_IDS.
+final string[] & readonly listingIds = isLiveServer
+    ? re `,`.split(os:getEnv("EBAY_LISTING_IDS")).'map(id => id.trim()).filter(id => id != "").cloneReadOnly()
+    : ["110501234567", "110507654321"];
 
 final Client ebay = check new ({
     auth: {token},
     httpVersion: isLiveServer ? http:HTTP_2_0 : http:HTTP_1_1
 }, serviceUrl);
 
-@test:Config {groups: ["live_tests", "mock_tests"]}
+@test:Config {groups: ["mock_tests"], enable: !isLiveServer}
 isolated function testFindListingRecommendations() returns error? {
+    check assertFindListingRecommendations();
+}
+
+@test:Config {groups: ["live_tests"], enable: isLiveServer}
+isolated function testFindListingRecommendationsLive() returns error? {
+    test:assertTrue(listingIds.length() > 0, "Set EBAY_LISTING_IDS to the seller's active listing IDs");
+    check assertFindListingRecommendations();
+}
+
+isolated function assertFindListingRecommendations() returns error? {
     PagedListingRecommendationCollection? response = check ebay->findListingRecommendations(
         {xEBAYCMARKETPLACEID: marketplaceId},
-        {listingIds: ["110501234567", "110507654321"]}
+        {listingIds}
     );
     test:assertTrue(response?.listingRecommendations !is ());
 }

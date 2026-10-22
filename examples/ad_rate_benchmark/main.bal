@@ -1,4 +1,5 @@
-// Page through all active listings and compute the average trending ad rate across recommended listings.
+// Page through the active listings eBay recommends for promotion and compute their average trending ad rate.
+// An empty request body targets all active listings, but eBay returns only those with promoteWithAd = RECOMMENDED.
 
 import ballerina/io;
 import ballerinax/ebay.recommendation;
@@ -10,6 +11,9 @@ configurable string marketplaceId = ?;
 configurable int pageSize = 50;
 
 public function main() returns error? {
+    if pageSize < 1 || pageSize > 500 {
+        return error(string `pageSize must be between 1 and 500, got ${pageSize}`);
+    }
     recommendation:Client ebay = check new ({
         auth: {
             clientId,
@@ -30,11 +34,14 @@ public function main() returns error? {
         );
         recommendation:ListingRecommendation[] items = page?.listingRecommendations ?: [];
         foreach recommendation:ListingRecommendation item in items {
-            recommendation:BidPercentages[] bids = item?.marketing?.ad?.bidPercentages ?: [];
-            if bids.length() == 0 {
+            recommendation:BidPercentages[] trending = from recommendation:BidPercentages bid
+                in item?.marketing?.ad?.bidPercentages ?: []
+                where bid?.basis == "TRENDING"
+                select bid;
+            if trending.length() == 0 {
                 continue;
             }
-            string? value = bids[0]?.value;
+            string? value = trending[0]?.value;
             if value is string {
                 recommended += 1;
                 rateTotal += check decimal:fromString(value);

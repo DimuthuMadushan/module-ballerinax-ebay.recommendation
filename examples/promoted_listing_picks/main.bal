@@ -30,7 +30,7 @@ public function main() returns error? {
     recommendation:ListingRecommendation[] recommendations = result?.listingRecommendations ?: [];
     foreach recommendation:ListingRecommendation item in recommendations {
         recommendation:Ad? ad = item?.marketing?.ad;
-        if ad is () {
+        if ad is () || ad?.promoteWithAd != "RECOMMENDED" {
             continue;
         }
         recommendation:BidPercentages[] bids = ad?.bidPercentages ?: [];
